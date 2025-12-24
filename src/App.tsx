@@ -11,11 +11,9 @@ const queryClient = new QueryClient();
 const router = createRouter({
   routeTree,
   context: {
-    auth: {
-      isAuthenticated: false,
-      user: null,
-      isLoading: true,
-    },
+    // auth will initially be undefined
+    // We'll be passing down the auth state from within a React component
+    auth: undefined!,
   },
 });
 
@@ -28,9 +26,18 @@ declare module "@tanstack/react-router" {
 
 function InnerApp() {
   const auth = useAuth();
-
-  return <RouterProvider router={router} context={{ auth }} />;
+  return (
+    <>
+      <RouterProvider
+        router={router}
+        context={{
+          auth,
+        }}
+      />
+    </>
+  );
 }
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
