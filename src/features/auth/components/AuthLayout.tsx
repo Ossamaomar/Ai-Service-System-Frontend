@@ -1,16 +1,7 @@
 import Silk from "@/components/ui/Silk";
-import { Outlet, useRouter } from "@tanstack/react-router";
-import { useLayoutEffect } from "react";
+import { Outlet } from "react-router";
 
 export default function AuthLayout() {
-  const router = useRouter();
-  useLayoutEffect(() => {
-    async function invalidate() {
-      await router.invalidate();
-    }
-
-    invalidate();
-  }, [router]);
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       <div className="absolute inset-0 -z-10">
@@ -22,7 +13,6 @@ export default function AuthLayout() {
           rotation={0}
         />
       </div>
-
       <Outlet />
     </div>
   );

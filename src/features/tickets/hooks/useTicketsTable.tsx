@@ -2,18 +2,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { getAllTicketService } from "../services/tickets.api";
-import { useRouter, useSearch } from "@tanstack/react-router";
-import { Route } from "@/routes/app/_layout/tickets";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTickets } from "../contexts/TicketsContext";
+import { useNavigate, useSearchParams } from "react-router";
 
 export default function useTicketsTable() {
-  const { search } = useTickets();
-  const { page, status, sort } = useSearch({ from: "/app/_layout/tickets/" });
-  const { refresh } = useAuth();
+  const { search, searchType } = useTickets();
+  const { refresh, user } = useAuth();
   const queryClient = useQueryClient();
-  const router = useRouter();
-  const navigate = Route.useNavigate();
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") ?? "1";
+  const status = searchParams.get("status") ?? "";
+  const sort = searchParams.get("sort") ?? "desc";
+  const navigate = useNavigate();
   const {
     data: tickets,
     isLoading,
@@ -23,7 +24,7 @@ export default function useTicketsTable() {
   } = useQuery({
     queryKey: ["tickets"],
     queryFn: () =>
-      getAllTicketService(search, page, status as string, sort as string),
+      getAllTicketService(search, searchType, page, status, sort, user?.branch || ""),
     staleTime: 60 * 1000,
     refetchInterval: 60 * 1000,
   });
@@ -37,24 +38,21 @@ export default function useTicketsTable() {
       if (isError) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const resError = error as any;
+        console.log("Here")
         if (resError.status === 401) {
           console.log(resError);
           toast.error("Your session has expired please login again");
           await refresh();
-          await router.invalidate();
-          await navigate({ to: "/auth/login" });
         }
         if (resError.status === 403) {
           console.log(resError);
           toast.error("You are not allowed to perform this action");
           await refresh();
-          await router.invalidate();
-          await navigate({ to: "/auth/login" });
         }
       }
     }
     handleError();
-  }, [error, isError, navigate, router, refresh]);
+  }, [error, isError, navigate, refresh]);
 
   return { tickets, isLoading, isFetching };
 }

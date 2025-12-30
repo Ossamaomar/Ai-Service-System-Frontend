@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createContext,
   useCallback,
@@ -11,6 +13,7 @@ import type {
   LoginCredentials,
   OTPVerification,
   SignupCredentials,
+  User,
 } from "../types/auth.types";
 import {
   getCurrentUserService,
@@ -21,13 +24,13 @@ import {
 } from "../services/auth.api";
 import { toast } from "sonner";
 
-
 export interface AuthContextValue extends AuthState {
   login: (credentials: LoginCredentials) => Promise<boolean>;
   logout: () => Promise<boolean>;
   signup: (credentials: SignupCredentials) => Promise<boolean>;
   verifyOtp: (credentials: OTPVerification) => Promise<number>;
   refresh: () => Promise<void>;
+  updateUser: (data: User) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -44,26 +47,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      setAuth((data) => ({ ...data, isLoading: true }));
       const { data } = await getCurrentUserService();
 
-      setAuth({
+      setAuth((prev) => ({
+        ...prev,
         user: data,
         isAuthenticated: true,
         isLoading: false,
         isInitialized: true,
-        pendingPhone: "",
-      });
-    } catch {
-      console.log("refresh error");
+      }));
+
+      localStorage.setItem(USER_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error("Refresh error:", error);
       localStorage.removeItem(USER_KEY);
-      setAuth({
+
+      setAuth((prev) => ({
+        ...prev,
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        isInitialized: false,
-        pendingPhone: "",
-      });
+        isInitialized: true,
+      }));
     }
   }, []);
 
@@ -75,22 +80,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (savedUser) {
         try {
           const user = JSON.parse(savedUser);
+
+          // Set user from localStorage immediately
           setAuth({
             user,
             isAuthenticated: true,
-            isLoading: true, // Still loading because we need to verify with server
+            isLoading: true,
             isInitialized: false,
             pendingPhone: "",
           });
-        } catch {
-          localStorage.removeItem(USER_KEY);
-        } finally {
-          setAuth((prev) => ({ ...prev, isLoading: false }));
-        }
-      }
 
-      await refresh();
+          // Verify with server
+          await refresh();
+        } catch (error) {
+          console.error("Init error:", error);
+          localStorage.removeItem(USER_KEY);
+
+          setAuth({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            isInitialized: true,
+            pendingPhone: "",
+          });
+        }
+      } else {
+        // No saved user
+        setAuth({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          isInitialized: true,
+          pendingPhone: "",
+        });
+      }
     }
+
     initializeAuth();
   }, [refresh]);
 
@@ -107,12 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isInitialized: true,
         pendingPhone: "",
       });
-      console.log(user);
-      toast.success("Welcome");
+
+      toast.success("Welcome back!");
       return true;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message || "Login failed");
       setAuth((prev) => ({ ...prev, isLoading: false }));
       return false;
     }
@@ -123,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuth((prev) => ({ ...prev, isLoading: true }));
       const res = await logoutService();
 
+      localStorage.removeItem(USER_KEY);
       setAuth({
         user: null,
         isAuthenticated: false,
@@ -130,11 +155,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading: false,
         pendingPhone: "",
       });
-      toast.success(res.message)
+
+      toast.success(res.message || "Logged out successfully");
       return true;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message || "Logout failed");
       return false;
     } finally {
       setAuth((prev) => ({ ...prev, isLoading: false }));
@@ -154,23 +179,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isInitialized: true,
         pendingPhone: "",
       });
-      console.log(user);
-      toast.success("Welcome");
+
+      toast.success("Welcome!");
       return 200;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      console.error("OTP verification error:", error);
+      toast.error(error?.response?.data?.message || "Verification failed");
       setAuth((prev) => ({ ...prev, isLoading: false }));
-      return error.status;
+      return error?.status || 400;
     }
+  }, []);
+
+  const updateUser = useCallback((data: User) => {
+    setAuth((prev) => ({
+      ...prev,
+      user: data,
+    }));
+    localStorage.setItem(USER_KEY, JSON.stringify(data));
   }, []);
 
   const signup = useCallback(async (data: SignupCredentials) => {
     try {
       setAuth((prev) => ({ ...prev, isLoading: true }));
       const { data: user, message } = await signupService(data);
-      console.log(user);
+
       setAuth({
         user,
         isAuthenticated: false,
@@ -178,24 +210,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isInitialized: true,
         pendingPhone: user.phone,
       });
-      toast.success(message);
+
+      toast.success(message || "Please verify your phone");
       return true;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message || "Signup failed");
       setAuth((prev) => ({ ...prev, isLoading: false }));
       return false;
     }
   }, []);
 
   return (
-    <AuthContext value={{ ...auth, login, signup, verifyOtp, logout, refresh }}>
+    <AuthContext.Provider
+      value={{ ...auth, login, signup, verifyOtp, logout, refresh, updateUser }}
+    >
       {children}
-    </AuthContext>
+    </AuthContext.Provider>
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
 

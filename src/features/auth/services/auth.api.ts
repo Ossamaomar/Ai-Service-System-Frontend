@@ -7,6 +7,7 @@ import type {
   ResetPasswordCredentials,
   SignupCredentials,
 } from "../types/auth.types";
+import type { UpdatePasswordInput } from "@/features/users/schemas/accountSchema";
 
 export async function loginService(data: LoginCredentials) {
   const res: AuthResponse = (await api.post("/auth/login", data)).data;
@@ -40,6 +41,11 @@ export async function forgetPasswordService(data: ForgetPasswordCredentials) {
 
 export async function resetPasswordService(data: ResetPasswordCredentials, token: string) {
   const res: AuthResponse = (await api.patch(`/auth/resetPassword/${token}`, data)).data;
+  return res;
+}
+
+export async function updatePasswordService(data: UpdatePasswordInput) {
+  const res = await api.patch(`/auth/updatePassword`, data);
   return res;
 }
 

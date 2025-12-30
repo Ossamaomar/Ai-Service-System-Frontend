@@ -26,8 +26,24 @@ export const createTicketSchema = z.object({
   underWarranty: z.boolean().default(false),
 });
 
+export const updateTicketSchema = z.object({
+
+  assignedTechId: z.cuid("Invalid technician ID").optional(),
+  status: TicketStatusEnum.default("RECEIVED"),
+  urgent: z.boolean().optional(),
+  notes: z.string().max(1000).optional(),
+  password: z.string().max(50).optional(),
+  includesBattery: z.boolean().optional(),
+  includesCharger: z.boolean().optional(),
+  missingSkrews: z.boolean().optional(),
+  hasScratches: z.boolean().optional(),
+  wantsBackup: z.boolean().optional(),
+  underWarranty: z.boolean().optional(),
+});
+
 // Input type (what you pass in)
 export type CreateTicketInput = z.input<typeof createTicketSchema>;
+export type UpdateTicketInput = z.input<typeof updateTicketSchema>;
 
 // Output type (what you get after validation)
 // export type CreateTicketOutput = z.output<typeof createTicketSchema>;

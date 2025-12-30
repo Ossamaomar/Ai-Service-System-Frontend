@@ -3,14 +3,12 @@ import type z from "zod";
 import { userSignupSchema } from "../schemas/authSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../contexts/AuthContext";
-import { Route } from "@/routes/auth/_layout";
-import { useRouter } from "@tanstack/react-router";
+import { useNavigate } from "react-router";
+
 
 export default function useSignup() {
   const { signup, isLoading } = useAuth();
-  const navigate = Route.useNavigate();
-  // const search = Route.useSearch();
-  const router = useRouter();
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof userSignupSchema>>({
     resolver: zodResolver(userSignupSchema),
     defaultValues: {
@@ -26,8 +24,7 @@ export default function useSignup() {
   async function onSubmit(data: z.infer<typeof userSignupSchema>) {
     const isSuccess = await signup(data);
     if (isSuccess) {
-      await router.invalidate();
-      await navigate({ to: "/auth/otp" });
+      navigate("/auth/otp");
     }
   }
 

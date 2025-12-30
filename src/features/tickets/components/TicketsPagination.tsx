@@ -6,31 +6,31 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useSearchParams } from "react-router";
 
 export default function TicketsPagination() {
-  const { page } = useSearch({ from: "/app/_layout/tickets/" });
-  const navigate = useNavigate();
-
+  const [searchParams, setSearchParams] = useSearchParams({ page: "1" });
+  const currentPage = !searchParams.get("page")
+    ? 1
+    : Number(searchParams.get("page"));
   function nextPage() {
-    navigate({
-      from: "/app/tickets",
-      search: (prev) => ({
-        ...prev,
-        page: (prev.page ?? 1) + 1,
-      }),
-    });
+    // navigate({
+    //   from: "/tickets",
+    //   search: (prev) => ({
+    //     ...prev,
+    //     page: (prev.page ?? 1) + 1,
+    //   }),
+    // });
+    const nextPage = currentPage + 1;
+    searchParams.set("page", `${nextPage}`);
+    setSearchParams(searchParams);
   }
 
   function prevPage() {
-    if (page <= 1) return;
-    navigate({
-      from: "/app/tickets",
-      search: (prev) => ({
-        ...prev,
-        page: page - 1,
-      }),
-    });
+    if (currentPage <= 1) return;
+    const prevPage = currentPage - 1;
+    searchParams.set("page", `${prevPage}`);
+    setSearchParams(searchParams);
   }
 
   return (
@@ -40,18 +40,18 @@ export default function TicketsPagination() {
           <PaginationPrevious onClick={prevPage} />
         </PaginationItem>
 
-        {page > 1 && (
+        {currentPage > 1 && (
           <PaginationItem>
-            <PaginationLink onClick={prevPage}>{page - 1}</PaginationLink>
+            <PaginationLink onClick={prevPage}>{currentPage - 1}</PaginationLink>
           </PaginationItem>
         )}
 
         <PaginationItem>
-          <PaginationLink isActive>{page}</PaginationLink>
+          <PaginationLink isActive>{currentPage}</PaginationLink>
         </PaginationItem>
 
         <PaginationItem>
-          <PaginationLink onClick={nextPage}>{page + 1}</PaginationLink>
+          <PaginationLink onClick={nextPage}>{currentPage + 1}</PaginationLink>
         </PaginationItem>
 
         <PaginationItem>

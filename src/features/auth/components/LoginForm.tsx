@@ -17,8 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import aiLogoTransparent from "@/assets/ai-logo-transparent.jpg";
 import useLogin from "../hooks/useLogin";
-import { Link } from "@tanstack/react-router";
 import { BeatLoader } from "react-spinners";
+import { Link } from "react-router";
 export default function LoginForm() {
   const { form, onSubmit, isLoading } = useLogin();
 

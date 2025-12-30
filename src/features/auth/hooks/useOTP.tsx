@@ -2,17 +2,15 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { verifyOTPSchema } from "../schemas/authSchemas";
 import { toast } from "sonner";
-import { Route } from "@/routes/auth/_layout";
-import { useRouter } from "@tanstack/react-router";
 import { resendOTPService } from "../services/auth.api";
+import { useNavigate } from "react-router";
 
 export default function useOTP() {
   const [otp, setOtp] = useState<string>("");
   const [seconds, setSeconds] = useState<number>(60);
   const { pendingPhone, verifyOtp } = useAuth();
-  const navigate = Route.useNavigate();
-  const search = Route.useSearch();
-  const router = useRouter();
+  const navigate = useNavigate();
+
   const reset = useCallback(async () => {
     try {
       await resendOTPService({ phone: pendingPhone });
@@ -47,8 +45,7 @@ export default function useOTP() {
       }
       const status = await verifyOtp(validatedData.data!);
       if (status === 200) {
-        await router.invalidate();
-        await navigate({ to: search.redirect || "/" });
+        await navigate("/");
       } else if (status === 400) {
         setOtp("");
       } else if (status === 429) {
@@ -60,7 +57,7 @@ export default function useOTP() {
     if (otp.length === 6) {
       submitOTP();
     }
-  }, [navigate, otp, pendingPhone, router, search.redirect, verifyOtp, reset]);
+  }, [navigate, otp, pendingPhone, verifyOtp, reset]);
 
   return { otp, setOtp, seconds, reset, isFinished: seconds <= 0 };
 }

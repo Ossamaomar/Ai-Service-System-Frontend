@@ -5,13 +5,13 @@ import {
   type CreateTicketInput,
 } from "../schemas/ticketSchemas";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useState } from "react";
 import type { Device } from "../types/tickets.types";
 import type { Customer } from "@/features/users/types/users.types";
 import type { User } from "@/features/auth/types/auth.types";
 import {
   getAllCustomersService,
-  getAllTechnicians,
+  getAllTechniciansService,
 } from "@/features/users/services/users.api";
 import {
   createTicketService,
@@ -52,6 +52,7 @@ export default function useCreateTicket() {
   const [devices, setDevices] = useState<Device[]>();
   const [technicians, setTechnicians] = useState<User[]>();
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -59,25 +60,31 @@ export default function useCreateTicket() {
     mutationFn: (data: CreateTicketInput) => createTicketService(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success("Ticket created successfully");
+      form.reset();
+      setOpen(false); // 👈 CLOSE DIALOG
+      setIsLoading(false);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
+      setIsLoading(false);
     },
   });
 
   useEffect(() => {
     async function getCustomers() {
-      console.log("Here1");
       if (customerPhone.length < 3 || customerPhone.length > 8) return;
 
       const res = await getAllCustomersService(customerPhone);
       setCustomers(res.data.map((customer: Customer) => customer));
 
       if (customerPhone.length < 8) {
-        console.log("Here2");
         setSelectedCustomer(undefined);
         return;
       }
 
       if (customerPhone.length === 8 && res.data.length === 1) {
-        console.log("Here3");
         setSelectedCustomer(res.data[0]);
         form.setValue("customerId", res.data[0].id ?? "", {
           shouldValidate: true,
@@ -109,35 +116,38 @@ export default function useCreateTicket() {
   useEffect(() => {
     async function fetchTechnicians() {
       try {
-        const res = await getAllTechnicians("TECHNICIAN");
+        const res = await getAllTechniciansService(
+          "TECHNICIAN",
+          user?.branch || ""
+        );
         setTechnicians(res.data);
-        console.log(res);
+        // console.log(res);
       } catch {
         toast.error("An error occured");
       }
     }
 
     fetchTechnicians();
-  }, []);
+  }, [user?.branch]);
 
-  function selectCustomer(e: MouseEvent<HTMLParagraphElement>) {
+  useEffect(() => {
+    if (open === false) {
+      form.reset();
+    }
+  }, [form, open]);
+
+  function selectCustomer(customerData: Customer) {
     const customer = customers.find(
-      (customer) => customer.phone === e.currentTarget.innerText
+      (customer) => customer.phone === customerData.phone
     );
-    form.setValue("customerPhone", e.currentTarget.innerText);
+    form.setValue("customerPhone", customerData.phone);
     setSelectedCustomer(customer);
     form.setValue("customerId", customer?.id ?? "", { shouldValidate: true });
   }
 
   async function onSubmit(data: CreateTicketInput) {
-    try {
-      mutation.mutate(data);
-      toast.success("Ticket created successfully");
-      form.reset();
-      setOpen(false); // 👈 CLOSE DIALOG
-    } catch {
-      toast.error("Failed to create ticket");
-    }
+    setIsLoading(true);
+    mutation.mutate(data);
   }
 
   return {
@@ -153,5 +163,6 @@ export default function useCreateTicket() {
     user,
     open,
     setOpen,
+    isLoading
   };
 }

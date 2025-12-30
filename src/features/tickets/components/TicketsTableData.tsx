@@ -3,11 +3,14 @@ import {
   IconCircleDashedX,
   IconMinus,
 } from "@tabler/icons-react";
-import type { TicketSummary } from "../types/tickets.types";
+import type { Ticket } from "../types/tickets.types";
 import { TicketStatusBadge } from "./TicketStatusBadge";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router";
+import TicketActionsMenu from "./TicketActionsMenu";
+import { RiBillLine } from "react-icons/ri";
 
-export default function TicketsTableData({ data }: { data: TicketSummary[] }) {
+
+export default function TicketsTableData({ data }: { data: Ticket[] }) {
   const navigate = useNavigate();
   return (
     <tbody className="[&>tr]:border-b [&>tr:last-child]:border-0 [&>tr]:border-gray-200">
@@ -15,10 +18,7 @@ export default function TicketsTableData({ data }: { data: TicketSummary[] }) {
         <tr
           key={ticket.id}
           onClick={() =>
-            navigate({
-              to: "/app/tickets/$ticketId",
-              params: { ticketId: ticket.id },
-            })
+            navigate(`/tickets/${ticket.id}`)
           }
           className="
             cursor-pointer
@@ -33,6 +33,7 @@ export default function TicketsTableData({ data }: { data: TicketSummary[] }) {
             [&>td]:text-nowrap
           "
         >
+          <td><RiBillLine  size={20} /></td>
           <td>{ticket.deviceCode}</td>
           <td>{ticket.ticketNumber}</td>
           <td>
@@ -59,6 +60,7 @@ export default function TicketsTableData({ data }: { data: TicketSummary[] }) {
             )}
           </td>
           <td>{ticket.createdAt.split("T")[0]}</td>
+          <td><TicketActionsMenu ticket={ticket} /></td>
         </tr>
       ))}
     </tbody>

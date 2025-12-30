@@ -54,13 +54,18 @@ export interface Ticket {
   underWarranty?: boolean;
 
   assignedTech?: User;
+  device?: Device;
+  customer?: Customer;
+  parts?: TicketPart[];
+  repairs?: TicketRepair[];
+  //   assignedTech?: User | null;
 
   totalRepairsCost?: number;
   totalPartsCost?: number;
   totalPrice?: number;
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Device {
@@ -75,6 +80,48 @@ export interface Device {
   customer?: Customer;
   customerId: string;
   createdAt: Date;
+}
+
+export interface TicketPart {
+  id: string;
+  ticket?: Ticket;
+  ticketId: string;
+  part?: Part;
+  partId: string;
+  quantity: number;
+  priceAtUse: number;
+  createdAt: Date;
+}
+
+export interface Part {
+  id: string;
+  name: string;
+  model?: string;
+  sellingPrice: number;
+  quantity: number;
+  minimumQuantity: number;
+  // ticketParts:
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TicketRepair {
+  id: string;
+  ticketId: string;
+  ticket: Ticket;
+  repairId: string;
+  repair?: Repair;
+  priceAtUse: number;
+  notes: string;
+  createdAt: Date;
+}
+
+export interface Repair {
+  id: string;
+  name: string;
+  price: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // export interface TicketWithRelations extends Ticket {

@@ -51,7 +51,7 @@ const statusConfig = {
   DELIVERED: {
     icon: IconBasketCheck,
     label: "Delivered",
-    className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300",
+    className: "bg-emerald-100  text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300",
   },
   WAITING_PARTS: {
     icon: IconLoader,
@@ -60,7 +60,7 @@ const statusConfig = {
   },
 } as const
 
-export function TicketStatusBadge({ status }: { status: TicketStatus }) {
+export function TicketStatusBadge({ status, full }: { status: TicketStatus; full?: boolean }) {
   const config = statusConfig[status]
   
   if (!config) return null
@@ -70,9 +70,9 @@ export function TicketStatusBadge({ status }: { status: TicketStatus }) {
   return (
     <Badge 
       variant="secondary" 
-      className={cn("inline-flex items-center gap-1.5 font-medium", config.className)}
+      className={cn(`inline-flex items-center gap-1.5 font-medium ${full ? "w-full" : ""}`, config.className)}
     >
-      <Icon className="h-5! w-5!" />
+      <Icon className="h-5! w-5! text-a" />
       {config.label}
     </Badge>
   )

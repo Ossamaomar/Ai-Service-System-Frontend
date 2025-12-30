@@ -8,18 +8,25 @@ import {
   type SetStateAction,
 } from "react";
 
+export type SearchType = "deviceCode" | "ticketNumber" | "customerPhone";
+
 interface TicketsContextValue {
   search: string;
   setSearch: Dispatch<SetStateAction<string>>;
+  searchType: SearchType;
+  setSearchType: Dispatch<SetStateAction<SearchType>>;
 }
 
 const TicketsContext = createContext<TicketsContextValue | undefined>(undefined);
 
 export function TicketsProvider({ children }: { children: ReactNode }) {
   const [search, setSearch] = useState("");
+  const [searchType, setSearchType] = useState<SearchType>("deviceCode");
 
   return (
-    <TicketsContext value={{ search, setSearch }}>{children}</TicketsContext>
+    <TicketsContext.Provider value={{ search, setSearch, searchType, setSearchType }}>
+      {children}
+    </TicketsContext.Provider>
   );
 }
 

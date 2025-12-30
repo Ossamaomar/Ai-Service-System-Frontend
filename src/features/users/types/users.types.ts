@@ -31,3 +31,21 @@ export type Customer = {
   isActive: boolean;
   createdAt: Date;
 };
+
+export type TechnicianOverview = {
+  id: string;
+  name: string;
+  phone: string;
+  completedTickets: number;
+  activeTickets: number;
+  createdAt: string;
+}
+export type CustomerOverview = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  ticketsCount: number;
+  devicesCount: number;
+  createdAt: string;
+}

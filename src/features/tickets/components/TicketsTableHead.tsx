@@ -13,6 +13,7 @@ export default function TicketsTableHead() {
           [&>th]:text-nowrap
         "
       >
+        <th></th>
         <th>Device Code</th>
         <th>Ticket number</th>
         <th>Status</th>
@@ -20,6 +21,7 @@ export default function TicketsTableHead() {
         <th>Urgent</th>
         <th>Technician</th>
         <th>Created At</th>
+        <th></th>
       </tr>
     </thead>
   );

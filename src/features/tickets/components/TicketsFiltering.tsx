@@ -15,8 +15,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 
 const statuses = [
   {
@@ -60,18 +60,13 @@ const statuses = [
 export default function TicketsFiltering() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
- 
-  const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams({ status: "" });
 
   useEffect(() => {
-    navigate({
-      from: "/app/tickets",
-      search: (prev) => ({
-        ...prev,
-        status: value || "all",
-      }),
-    });
-  }, [navigate, value]);
+    searchParams.set("status", value);
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams, value]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -80,7 +75,7 @@ export default function TicketsFiltering() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="col-span-3 lg:col-span-2 justify-between overflow-hidden"
+          className="col-span-3 lg:col-span-1 justify-between overflow-hidden"
         >
           {value
             ? statuses.find((framework) => framework.value === value)?.label

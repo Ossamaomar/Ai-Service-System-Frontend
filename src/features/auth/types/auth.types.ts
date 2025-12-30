@@ -5,6 +5,14 @@ export enum UserRoles {
   CUSTOMER = "CUSTOMER",
   STORE_MANAGER = "STORE_MANAGER",
 }
+
+export type UserRolesType =
+  | "ADMIN"
+  | "RECEPTIONIST"
+  | "TECHNICIAN"
+  | "CUSTOMER"
+  | "STORE_MANAGER";
+
 export enum Branches {
   FARQ = "FARQ",
   SOUQ = "SOUQ",
@@ -19,6 +27,7 @@ export interface User {
   branch: Branches | null;
   isPhoneVerified: boolean;
   passwordChangedAt: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
