@@ -2,8 +2,10 @@ import TechniciansPagination from "@/features/users/components/TechniciansPagina
 import DevicesTable from "./DevicesTable";
 import CreateDevice from "./CreateDevice";
 import DevicesSearch from "./DevicesSearch";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 export default function Devices() {
+  const { user } = useAuth();
   return (
     <div className="space-y-2 h-full flex flex-col justify-between ">
       <div>
@@ -15,7 +17,8 @@ export default function Devices() {
       <div className="space-y-2">
         <div className="grid grid-cols-6 gap-2">
           <DevicesSearch />
-          <CreateDevice />
+          {user?.role === "ADMIN" ||
+            (user?.role === "RECEPTIONIST" && <CreateDevice />)}
         </div>
         <DevicesTable />
       </div>

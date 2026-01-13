@@ -1,7 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { getAllTicketService } from "../services/tickets.api";
+import {
+  getAllTicketForTechnicianService,
+  getAllTicketService,
+} from "../services/tickets.api";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTickets } from "../contexts/TicketsContext";
 import { useNavigate, useSearchParams } from "react-router";
@@ -24,7 +27,23 @@ export default function useTicketsTable() {
   } = useQuery({
     queryKey: ["tickets"],
     queryFn: () =>
-      getAllTicketService(search, searchType, page, status, sort, user?.branch || ""),
+      user?.role === "TECHNICIAN"
+        ? getAllTicketForTechnicianService(
+            search,
+            searchType,
+            page,
+            status,
+            sort,
+            user?.branch || ""
+          )
+        : getAllTicketService(
+            search,
+            searchType,
+            page,
+            status,
+            sort,
+            user?.branch || ""
+          ),
     staleTime: 60 * 1000,
     refetchInterval: 60 * 1000,
   });
@@ -38,7 +57,7 @@ export default function useTicketsTable() {
       if (isError) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const resError = error as any;
-        console.log("Here")
+        console.log("Here");
         if (resError.status === 401) {
           console.log(resError);
           toast.error("Your session has expired please login again");
@@ -54,5 +73,5 @@ export default function useTicketsTable() {
     handleError();
   }, [error, isError, navigate, refresh]);
 
-  return { tickets, isLoading, isFetching };
+  return { tickets, isLoading, isFetching, user };
 }

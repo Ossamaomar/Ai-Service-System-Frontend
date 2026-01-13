@@ -100,9 +100,10 @@ export interface Part {
   sellingPrice: number;
   quantity: number;
   minimumQuantity: number;
+  branch: Branches;
   // ticketParts:
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: string;
 }
 
 export interface TicketRepair {
@@ -121,7 +122,7 @@ export interface Repair {
   name: string;
   price: number;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: string;
 }
 
 // export interface TicketWithRelations extends Ticket {

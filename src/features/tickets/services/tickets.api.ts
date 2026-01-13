@@ -1,5 +1,8 @@
 import { api } from "@/lib/server";
-import type { CreateTicketInput, UpdateTicketInput } from "../schemas/ticketSchemas";
+import type {
+  CreateTicketInput,
+  UpdateTicketInput,
+} from "../schemas/ticketSchemas";
 import type { Ticket, TicketStatus } from "../types/tickets.types";
 
 export async function getAllTicketService(
@@ -10,12 +13,38 @@ export async function getAllTicketService(
   sort: string = "desc",
   branch: string = ""
 ) {
-  console.log(`${searchType}=${searchValue ? searchValue : ""}`)
+  console.log(`${searchType}=${searchValue ? searchValue : ""}`);
   const res = await api.get(
-    `/tickets?${searchType}=${searchValue ? searchValue : ""}&page=${page}&sort=${
-      sort === "desc" ? "-createdAt" : "createdAt"
-    }${!status ? "" : `&status=${status}`}&branch=${branch}`
+    `/tickets?${searchType}=${
+      searchValue ? searchValue : ""
+    }&page=${page}&sort=${sort === "desc" ? "-createdAt" : "createdAt"}${
+      !status ? "" : `&status=${status}`
+    }&branch=${branch}`
   );
+  return res;
+}
+
+export async function getAllTicketForTechnicianService(
+  searchValue: string = "",
+  searchType: string,
+  page: string = "1",
+  status?: string,
+  sort: string = "desc",
+  branch: string = ""
+) {
+  console.log(`${searchType}=${searchValue ? searchValue : ""}`);
+  const res = await api.get(
+    `/tickets/currentTechnician?${searchType}=${
+      searchValue ? searchValue : ""
+    }&page=${page}&sort=${sort === "desc" ? "-createdAt" : "createdAt"}${
+      !status ? "" : `&status=${status}`
+    }&branch=${branch}`
+  );
+  return res;
+}
+
+export async function assignTicketService(id: string) {
+  const res = await api.patch(`/tickets/currentTechnician/${id}`);
   return res;
 }
 
@@ -41,7 +70,10 @@ export async function getCustomerDevicesService(id: string) {
   return res;
 }
 
-export async function changeTicketStatusService(id: string, status: TicketStatus) {
+export async function changeTicketStatusService(
+  id: string,
+  status: TicketStatus
+) {
   const res = await api.patch(`/tickets/${id}`, {
     status,
   });

@@ -9,7 +9,7 @@ import TicketsSorting from "./TicketsSorting";
 import useTicketsTable from "../hooks/useTicketsTable";
 
 export default function Tickets() {
-  const { tickets, isLoading, isFetching } = useTicketsTable();
+  const { tickets, isLoading, isFetching, user } = useTicketsTable();
   if (isLoading) return <Loader />;
 
   return (
@@ -20,7 +20,10 @@ export default function Tickets() {
           <TicketsSearch />
           <TicketsFiltering />
           <TicketsSorting />
-          <CreateTicket />
+          {user &&
+            (user?.role === "ADMIN" || user?.role === "RECEPTIONIST") && (
+              <CreateTicket />
+            )}
         </div>
 
         {isFetching ? <Loader /> : <TicketsTable data={tickets?.data.data} />}

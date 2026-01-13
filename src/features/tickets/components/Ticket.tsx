@@ -1,7 +1,4 @@
-import { useParams } from "react-router";
 import { TicketQRCode } from "./TicketQRCode";
-import { useQuery } from "@tanstack/react-query";
-import { getTicketByIdService } from "../services/tickets.api";
 import { toast } from "sonner";
 import Loader from "@/components/ui/Loader";
 import { TicketStatusBadge } from "./TicketStatusBadge";
@@ -25,13 +22,22 @@ import {
   IconMinus,
   IconMapPin,
 } from "@tabler/icons-react";
+import { AddTicketPart } from "./AddTicketPart";
+import { AddTicketRepair } from "./AddTicketRepair";
+import { Button } from "@/components/ui/button";
+import { MdOutlineDeleteForever } from "react-icons/md";
+import useTicket from "../hooks/useTicket";
 
 export default function Ticket() {
-  const params = useParams();
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["ticket", params.ticketId],
-    queryFn: () => getTicketByIdService(params.ticketId!),
-  });
+  const {
+    canEdit,
+    deletePartMutation,
+    deleteRepairMutation,
+    isError,
+    isLoading,
+    ticket,
+    ticketId,
+  } = useTicket();
 
   if (isLoading) {
     return (
@@ -41,7 +47,7 @@ export default function Ticket() {
     );
   }
 
-  if (isError || !data?.data) {
+  if (isError || !ticket) {
     toast.error("Failed to load ticket");
     return (
       <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
@@ -56,8 +62,6 @@ export default function Ticket() {
       </div>
     );
   }
-
-  const ticket = data.data;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -90,7 +94,7 @@ export default function Ticket() {
 
         {/* QR Code */}
         <div className="flex-shrink-0 flex justify-center">
-          <TicketQRCode ticketId={params.ticketId!} />
+          <TicketQRCode ticketId={ticketId!} />
         </div>
       </div>
 
@@ -269,13 +273,18 @@ export default function Ticket() {
         {/* Parts Used */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IconPackage className="h-5 w-5" />
-              Parts Used
-            </CardTitle>
-            <CardDescription>
-              {ticket.parts?.length || 0} part(s) used in this repair
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <IconPackage className="h-5 w-5" />
+                  Parts Used
+                </CardTitle>
+                <CardDescription>
+                  {ticket.parts?.length || 0} part(s) used in this repair
+                </CardDescription>
+              </div>
+              {canEdit && <AddTicketPart ticketId={ticketId!} />}
+            </div>
           </CardHeader>
           <CardContent>
             {ticket.parts && ticket.parts.length > 0 ? (
@@ -291,19 +300,35 @@ export default function Ticket() {
                         Quantity: {part.quantity || 1}
                       </p>
                     </div>
-                    <Badge variant="secondary">
-                      ${part.priceAtUse?.toFixed(2) || "0.00"}
-                    </Badge>
+                    <div className="flex gap-4">
+                      <Badge variant="secondary">
+                        {part.priceAtUse?.toFixed(2) || "0.00"} OMR
+                      </Badge>
+
+                      {canEdit && (
+                        <Button
+                          size={"icon-sm"}
+                          className="bg-red-200 text-red-600 hover:bg-red-500 hover:text-white cursor-pointer"
+                          onClick={() => deletePartMutation.mutate(part.id)}
+                        >
+                          <MdOutlineDeleteForever />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <Separator />
                 <div className="flex justify-between items-center font-semibold">
                   <span>Total Parts Cost:</span>
                   <span className="text-lg">
-                    $
                     {ticket.parts
-                      .reduce((sum, part) => sum + (part.priceAtUse || 0), 0)
-                      .toFixed(2)}
+                      .reduce(
+                        (sum, part) =>
+                          sum + (part.priceAtUse * part.quantity || 0),
+                        0
+                      )
+                      .toFixed(2)}{" "}
+                    OMR
                   </span>
                 </div>
               </div>
@@ -318,13 +343,18 @@ export default function Ticket() {
         {/* Repairs Done */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IconSettings className="h-5 w-5" />
-              Repairs Done
-            </CardTitle>
-            <CardDescription>
-              {ticket.repairs?.length || 0} repair(s) performed
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <IconSettings className="h-5 w-5" />
+                  Repairs Done
+                </CardTitle>
+                <CardDescription>
+                  {ticket.repairs?.length || 0} repair(s) performed
+                </CardDescription>
+              </div>
+              {canEdit && <AddTicketRepair ticketId={ticketId!} />}
+            </div>
           </CardHeader>
           <CardContent>
             {ticket.repairs && ticket.repairs.length > 0 ? (
@@ -340,22 +370,35 @@ export default function Ticket() {
                         Service charge
                       </p>
                     </div>
-                    <Badge variant="secondary">
-                      ${repair.priceAtUse?.toFixed(2) || "0.00"}
-                    </Badge>
+
+                    <div className="flex gap-4">
+                      <Badge variant="secondary">
+                        {repair.priceAtUse?.toFixed(2) || "0.00"} OMR
+                      </Badge>
+
+                      {canEdit && (
+                        <Button
+                          size={"icon-sm"}
+                          className="bg-red-200 text-red-600 hover:bg-red-500 hover:text-white cursor-pointer"
+                          onClick={() => deleteRepairMutation.mutate(repair.id)}
+                        >
+                          <MdOutlineDeleteForever />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <Separator />
                 <div className="flex justify-between items-center font-semibold">
                   <span>Total Repair Cost:</span>
                   <span className="text-lg">
-                    $
                     {ticket.repairs
                       .reduce(
                         (sum, repair) => sum + (repair.priceAtUse || 0),
                         0
                       )
-                      .toFixed(2)}
+                      .toFixed(2)}{" "}
+                    OMR
                   </span>
                 </div>
               </div>
@@ -399,11 +442,11 @@ export default function Ticket() {
       {/* Grand Total */}
       {ticket.totalPrice ? (
         <Card className="border-primary">
-          <CardContent className="pt-6">
+          <CardContent className="py-2">
             <div className="flex justify-between items-center">
               <span className="text-2xl font-bold">Total Amount:</span>
               <span className="text-3xl font-bold text-primary">
-                ${ticket.totalPrice.toFixed(2)}
+                {ticket.totalPrice.toFixed(2)} OMR
               </span>
             </div>
           </CardContent>

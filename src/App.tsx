@@ -7,6 +7,8 @@ import { TechniciansProvider } from "./features/users/contexts/TechniciansContex
 import { CustomersProvider } from "./features/users/contexts/CustomersContext";
 import { Toaster } from "sonner";
 import { DevicesProvider } from "./features/tickets/contexts/DevicesContext";
+import { PartsProvider } from "./features/parts/context/PartsContext";
+import { RepairsProvider } from "./features/repairs/contexts/RepairsContext";
 
 const queryClient = new QueryClient();
 
@@ -18,7 +20,11 @@ export default function App() {
           <TechniciansProvider>
             <CustomersProvider>
               <DevicesProvider>
-                <AppRoutes />
+                <PartsProvider>
+                  <RepairsProvider>
+                    <AppRoutes />
+                  </RepairsProvider>
+                </PartsProvider>
               </DevicesProvider>
             </CustomersProvider>
           </TechniciansProvider>

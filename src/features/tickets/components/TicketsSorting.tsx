@@ -8,13 +8,6 @@ export default function TicketsSorting() {
   const [searchParams, setSearchParams] = useSearchParams({sort: "desc"});
 
   useEffect(() => {
-    // navigate({
-    //   from: "/app/tickets",
-    //   search: (prev) => ({
-    //     ...prev,
-    //     sort: sort || "desc",
-    //   }),
-    // });
     searchParams.set("sort", sort);
     setSearchParams(searchParams)
     

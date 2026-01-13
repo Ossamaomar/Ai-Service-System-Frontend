@@ -5,21 +5,52 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IconDots } from "@tabler/icons-react";
 import { TicketStatusBadge } from "./TicketStatusBadge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Ticket, TicketStatus } from "../types/tickets.types";
-import { changeTicketStatusService } from "../services/tickets.api";
+import {
+  assignTicketService,
+  changeTicketStatusService,
+} from "../services/tickets.api";
 import type { MouseEvent } from "react";
 import EditTicket from "./EditTicket";
+import { toast } from "sonner";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
-export default function TicketActionsMenu({
-  ticket,
-}: {
-  ticket: Ticket;
-}) {
+const techniciansStatuses: TicketStatus[] = [
+  "DIAGNOSIS",
+  "UNDER_REPAIR",
+  "WAITING_APPROVAL",
+  "WAITING_PARTS",
+  "READY",
+];
+
+const receptionistStatuses: TicketStatus[] = [
+  "RECEIVED",
+  "READY",
+  "APPROVED",
+  "DELIVERED",
+  "CANCELLED",
+];
+
+const allStatuses: TicketStatus[] = [
+  "RECEIVED",
+  "READY",
+  "APPROVED",
+  "DELIVERED",
+  "CANCELLED",
+  "DIAGNOSIS",
+  "UNDER_REPAIR",
+  "WAITING_APPROVAL",
+  "WAITING_PARTS",
+];
+
+export default function TicketActionsMenu({ ticket }: { ticket: Ticket }) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: (status: TicketStatus) =>
@@ -27,11 +58,32 @@ export default function TicketActionsMenu({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
+    },
+  });
+
+  const assignTicketMutation = useMutation({
+    mutationFn: () => assignTicketService(ticket.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success("Ticket assigned successfully");
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
+    },
   });
 
   function changeStatus(e: MouseEvent<HTMLDivElement>, status: TicketStatus) {
     e.stopPropagation();
     mutation.mutate(status);
+  }
+
+  function assignTicket(e: MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    assignTicketMutation.mutate();
   }
 
   return (
@@ -42,27 +94,81 @@ export default function TicketActionsMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">
-        <DropdownMenuItem>
-          <EditTicket ticket={ticket} />
-        </DropdownMenuItem>
-        <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={(e) => changeStatus(e, "RECEIVED")}>
-            <TicketStatusBadge status="RECEIVED" full={true} />
+        {user?.role === "RECEPTIONIST" && (
+          <DropdownMenuItem>
+            <EditTicket ticket={ticket} />
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => changeStatus(e, "READY")}>
-            <TicketStatusBadge status="READY" full={true} />
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => changeStatus(e, "APPROVED")}>
-            <TicketStatusBadge status="APPROVED" full={true} />
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => changeStatus(e, "DELIVERED")}>
-            <TicketStatusBadge status="DELIVERED" full={true} />
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => changeStatus(e, "CANCELLED")}>
-            <TicketStatusBadge status="CANCELLED" full={true} />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
+        )}
+
+        {user?.role === "TECHNICIAN" &&
+          (ticket.assignedTechId === null ? (
+            <DropdownMenuItem>
+              <Button
+                variant={"outline"}
+                className="w-full cursor-pointer"
+                onClick={assignTicket}
+              >
+                Take Ticket
+              </Button>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem>
+              <Button variant={"outline"} className="w-full cursor-pointer">
+                Add Parts & Repairs
+              </Button>
+            </DropdownMenuItem>
+          ))}
+
+        {user?.role === "RECEPTIONIST" && (
+          <DropdownMenuGroup>
+            <>
+              <DropdownMenuSeparator></DropdownMenuSeparator>
+              <DropdownMenuLabel>Change status</DropdownMenuLabel>
+              {receptionistStatuses.map((status) => (
+                <DropdownMenuItem
+                  key={status}
+                  onClick={(e) => changeStatus(e, status)}
+                >
+                  <TicketStatusBadge status={status} full={true} />
+                </DropdownMenuItem>
+              ))}
+            </>
+          </DropdownMenuGroup>
+        )}
+
+        {user?.role === "TECHNICIAN" && (
+          <DropdownMenuGroup>
+            <>
+              <DropdownMenuSeparator></DropdownMenuSeparator>
+              <DropdownMenuLabel>Change status</DropdownMenuLabel>
+              {techniciansStatuses.map((status) => (
+                <DropdownMenuItem
+                  key={status}
+                  onClick={(e) => changeStatus(e, status)}
+                >
+                  <TicketStatusBadge status={status} full={true} />
+                </DropdownMenuItem>
+              ))}
+            </>
+          </DropdownMenuGroup>
+        )}
+
+        {user?.role === "ADMIN" && (
+          <DropdownMenuGroup>
+            <>
+              <DropdownMenuSeparator></DropdownMenuSeparator>
+              <DropdownMenuLabel>Change status</DropdownMenuLabel>
+              {allStatuses.map((status) => (
+                <DropdownMenuItem
+                  key={status}
+                  onClick={(e) => changeStatus(e, status)}
+                >
+                  <TicketStatusBadge status={status} full={true} />
+                </DropdownMenuItem>
+              ))}
+            </>
+          </DropdownMenuGroup>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
