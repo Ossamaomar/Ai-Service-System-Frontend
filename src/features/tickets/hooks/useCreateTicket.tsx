@@ -19,6 +19,7 @@ import {
 } from "../services/tickets.api";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 export default function useCreateTicket() {
   const form = useForm<CreateTicketInput>({
@@ -71,6 +72,8 @@ export default function useCreateTicket() {
       setIsLoading(false);
     },
   });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function getCustomers() {
@@ -163,6 +166,8 @@ export default function useCreateTicket() {
     user,
     open,
     setOpen,
-    isLoading
+    isLoading,
+    navigate,
+    selectedCustomer
   };
 }

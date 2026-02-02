@@ -39,6 +39,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BeatLoader } from "react-spinners";
+import { IoIosAdd } from "react-icons/io";
+import { FaUser } from "react-icons/fa6";
 
 export default function CreateTicket() {
   const {
@@ -55,6 +57,8 @@ export default function CreateTicket() {
     open,
     setOpen,
     isLoading,
+    navigate,
+    selectedCustomer,
   } = useCreateTicket();
 
   return (
@@ -105,13 +109,30 @@ export default function CreateTicket() {
                             Customer Phone{" "}
                             <span className="text-destructive">*</span>
                           </FieldLabel>
-                          <Input
-                            {...field}
-                            id="customerPhone"
-                            aria-invalid={fieldState.invalid}
-                            placeholder="Enter phone number"
-                            onInput={() => setShowPhones(true)}
-                          />
+                          <div className="flex gap-1">
+                            <Input
+                              {...field}
+                              id="customerPhone"
+                              aria-invalid={fieldState.invalid}
+                              placeholder="Enter phone number"
+                              onInput={() => setShowPhones(true)}
+                            />
+
+                            <Button
+                              type="button"
+                              size={"icon-sm"}
+                              className="h-full bg-white text-black border hover:text-white"
+                              onClick={() => navigate("/customers")}
+                            >
+                              <IoIosAdd />
+                            </Button>
+                          </div>
+                          {selectedCustomer && (
+                            <p className="text-xs text-gray-500 flex items-center gap-2">
+                              <FaUser />
+                              {selectedCustomer.name}
+                            </p>
+                          )}
 
                           {/* Autocomplete Dropdown */}
                           {showPhones &&
@@ -165,35 +186,49 @@ export default function CreateTicket() {
                           <FieldLabel htmlFor="deviceId">
                             Device <span className="text-destructive">*</span>
                           </FieldLabel>
-                          <Select
-                            value={field.value ?? ""}
-                            onValueChange={(value) => {
-                              field.onChange(
-                                value === "__none__" ? undefined : value
-                              );
-                            }}
-                          >
-                            <SelectTrigger
-                              id="deviceId"
-                              aria-invalid={fieldState.invalid}
+                          <div className="flex gap-1 w-full">
+                            <Select
+                              value={field.value ?? ""}
+                              onValueChange={(value) => {
+                                field.onChange(
+                                  value === "__none__" ? undefined : value
+                                );
+                              }}
                             >
-                              <SelectValue placeholder="Select device" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="__none__">None</SelectItem>
-                              {devices && devices.length > 0 ? (
-                                devices.map((device) => (
-                                  <SelectItem key={device.id} value={device.id}>
-                                    {`${device.type} - ${device.brand} - ${device.color}`}
+                              <SelectTrigger
+                                id="deviceId"
+                                aria-invalid={fieldState.invalid}
+                                className="w-full"
+                              >
+                                <SelectValue placeholder="Select device" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="__none__">None</SelectItem>
+                                {devices && devices.length > 0 ? (
+                                  devices.map((device) => (
+                                    <SelectItem
+                                      key={device.id}
+                                      value={device.id}
+                                    >
+                                      {`${device.type} - ${device.brand} - ${device.color}`}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <SelectItem disabled value="no-devices">
+                                    No devices available
                                   </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem disabled value="no-devices">
-                                  No devices available
-                                </SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              size={"icon-sm"}
+                              className="h-full bg-white text-black border hover:text-white"
+                              onClick={() => navigate("/devices")}
+                            >
+                              <IoIosAdd />
+                            </Button>
+                          </div>
                           {fieldState.invalid && (
                             <FieldError errors={[fieldState.error]} />
                           )}

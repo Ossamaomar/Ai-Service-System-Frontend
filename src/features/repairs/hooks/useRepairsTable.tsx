@@ -10,6 +10,7 @@ export default function useRepairsTable() {
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") ?? "1";
   const { search } = useRepairs();
+  const {user} = useAuth();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["repairs"],
     queryFn: () => getAllRepairsService(page, search),
@@ -43,5 +44,5 @@ export default function useRepairsTable() {
     handleError();
   }, [error, isError, refresh]);
 
-  return { data, isLoading, isError };
+  return { data, isLoading, isError, user };
 }

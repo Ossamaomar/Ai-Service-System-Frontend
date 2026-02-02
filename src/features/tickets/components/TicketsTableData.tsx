@@ -14,7 +14,7 @@ export default function TicketsTableData({ data }: { data: Ticket[] }) {
   const navigate = useNavigate();
   return (
     <tbody className="[&>tr]:border-b [&>tr:last-child]:border-0 [&>tr]:border-gray-200">
-      {data.map((ticket) => (
+      {data?.map((ticket) => (
         <tr
           key={ticket.id}
           onClick={() =>
@@ -34,7 +34,7 @@ export default function TicketsTableData({ data }: { data: Ticket[] }) {
           "
         >
           <td><RiBillLine  size={20} /></td>
-          <td>{ticket.deviceCode}</td>
+          <td>{ticket.device?.deviceCode}</td>
           <td>{ticket.ticketNumber}</td>
           <td>
             <TicketStatusBadge status={ticket.status} />

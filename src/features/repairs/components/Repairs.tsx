@@ -22,9 +22,10 @@ export default function Repairs() {
           <RepairsSearch />
           {/* <PartsFiltering /> */}
           {/* <TicketsSorting /> */}
-          {user && (user?.role === "ADMIN" || user?.role === "TECHNICIAN") && (
-            <CreateRepair />
-          )}
+          {user &&
+            (user?.role === "ADMIN" || user?.role === "STORE_MANAGER") && (
+              <CreateRepair />
+            )}
         </div>
 
         <RepairsTable />

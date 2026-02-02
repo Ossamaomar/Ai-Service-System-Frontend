@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const DeviceTypeEnum = z.enum(["LAPTOP", "CAMERA", "PRINTER", "OTHER"], {
+export const DeviceTypeEnum = z.enum(["LAPTOP", "CAMERA", "PRINTER", "DESKTOP", "NETWORK","OTHER"], {
   error: "Please select a valid device type",
 });
 

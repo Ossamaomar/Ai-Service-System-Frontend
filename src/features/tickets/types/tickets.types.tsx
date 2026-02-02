@@ -34,7 +34,7 @@ export interface TicketSummary {
 export interface Ticket {
   id: string;
   ticketNumber: string;
-  deviceCode: string;
+  // deviceCode: string;
   deviceId: string;
   customerId: string;
   assignedTechId?: string | null;
@@ -58,18 +58,20 @@ export interface Ticket {
   customer?: Customer;
   parts?: TicketPart[];
   repairs?: TicketRepair[];
-  //   assignedTech?: User | null;
+  // assignedTech?: User | null;
 
   totalRepairsCost?: number;
   totalPartsCost?: number;
   totalPrice?: number;
 
+  assignedAt: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface Device {
   id: string;
+  deviceCode: string;
   serialNumber?: string;
   type: "LAPTOP" | "CAMERA" | "PRINTER" | "OTHER";
   otherType?: string;

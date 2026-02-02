@@ -12,10 +12,7 @@ import { IconDots } from "@tabler/icons-react";
 import { TicketStatusBadge } from "./TicketStatusBadge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Ticket, TicketStatus } from "../types/tickets.types";
-import {
-  assignTicketService,
-  changeTicketStatusService,
-} from "../services/tickets.api";
+import { updateTicketService } from "../services/tickets.api";
 import type { MouseEvent } from "react";
 import EditTicket from "./EditTicket";
 import { toast } from "sonner";
@@ -27,11 +24,11 @@ const techniciansStatuses: TicketStatus[] = [
   "WAITING_APPROVAL",
   "WAITING_PARTS",
   "READY",
+  "CANCELLED",
 ];
 
 const receptionistStatuses: TicketStatus[] = [
   "RECEIVED",
-  "READY",
   "APPROVED",
   "DELIVERED",
   "CANCELLED",
@@ -54,7 +51,7 @@ export default function TicketActionsMenu({ ticket }: { ticket: Ticket }) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: (status: TicketStatus) =>
-      changeTicketStatusService(ticket.id, status),
+      updateTicketService(ticket.id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
     },
@@ -65,7 +62,8 @@ export default function TicketActionsMenu({ ticket }: { ticket: Ticket }) {
   });
 
   const assignTicketMutation = useMutation({
-    mutationFn: () => assignTicketService(ticket.id),
+    mutationFn: () =>
+      updateTicketService(ticket.id, { assignedTechId: user?.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       toast.success("Ticket assigned successfully");

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { useTickets, type SearchType } from "../contexts/TicketsContext";
 import {
-  IconDeviceMobile,
+  // IconDeviceMobile,
   IconTicket,
   IconPhone,
   IconQrcode,
@@ -20,12 +20,12 @@ import {
 import { TicketQRScanner } from "./TicketQRScanner";
 
 const searchOptions = [
-  {
-    value: "deviceCode" as SearchType,
-    label: "Device Code",
-    icon: IconDeviceMobile,
-    placeholder: "Search by device code...",
-  },
+  // {
+  //   value: "deviceCode" as SearchType,
+  //   label: "Device Code",
+  //   icon: IconDeviceMobile,
+  //   placeholder: "Search by device code...",
+  // },
   {
     value: "ticketNumber" as SearchType,
     label: "Ticket Number",

@@ -117,6 +117,8 @@ export default function EditDevice({ device }: { device: Device }) {
                         <SelectItem value="LAPTOP">Laptop</SelectItem>
                         <SelectItem value="CAMERA">Camera</SelectItem>
                         <SelectItem value="PRINTER">Printer</SelectItem>
+                        <SelectItem value="DESKTOP">Desktop</SelectItem>
+                        <SelectItem value="NETWORK">Network</SelectItem>
                         <SelectItem value="OTHER">Other</SelectItem>
                       </SelectContent>
                     </Select>

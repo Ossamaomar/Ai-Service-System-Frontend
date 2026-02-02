@@ -25,7 +25,7 @@ import {
 import { AddTicketPart } from "./AddTicketPart";
 import { AddTicketRepair } from "./AddTicketRepair";
 import { Button } from "@/components/ui/button";
-import { MdOutlineDeleteForever } from "react-icons/md";
+import { MdOutlineDateRange, MdOutlineDeleteForever } from "react-icons/md";
 import useTicket from "../hooks/useTicket";
 
 export default function Ticket() {
@@ -84,11 +84,16 @@ export default function Ticket() {
           <p className="text-muted-foreground flex items-center gap-2">
             <IconDeviceMobile className="h-4 w-4" />
             Device Code:{" "}
-            <span className="font-medium">{ticket.deviceCode}</span>
+            <span className="font-medium">{ticket.device?.deviceCode}</span>
           </p>
           <p className="text-muted-foreground flex items-center gap-2">
             <IconMapPin className="h-4 w-4" />
             Branch: <Badge variant="outline">{ticket.branch}</Badge>
+          </p>
+          <p className="text-muted-foreground flex items-center gap-2">
+            <MdOutlineDateRange className="h-4 w-4" />
+            Assigning Date:{" "}
+            <Badge variant="outline">{ticket.assignedAt.slice(0, 10)}</Badge>
           </p>
         </div>
 

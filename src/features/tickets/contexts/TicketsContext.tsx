@@ -8,7 +8,7 @@ import {
   type SetStateAction,
 } from "react";
 
-export type SearchType = "deviceCode" | "ticketNumber" | "customerPhone";
+export type SearchType = "ticketNumber" | "customerPhone";
 
 interface TicketsContextValue {
   search: string;
@@ -21,7 +21,7 @@ const TicketsContext = createContext<TicketsContextValue | undefined>(undefined)
 
 export function TicketsProvider({ children }: { children: ReactNode }) {
   const [search, setSearch] = useState("");
-  const [searchType, setSearchType] = useState<SearchType>("deviceCode");
+  const [searchType, setSearchType] = useState<SearchType>("ticketNumber");
 
   return (
     <TicketsContext.Provider value={{ search, setSearch, searchType, setSearchType }}>

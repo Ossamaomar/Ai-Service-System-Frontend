@@ -2,8 +2,9 @@
 import type { Device } from "../types/tickets.types";
 import { MdOutlineDevices } from "react-icons/md";
 import EditDevice from "./EditDevice";
+import type { User } from "@/features/auth/types/auth.types";
 
-export default function DevicesTableData({ data }: { data: Device[] }) {
+export default function DevicesTableData({ data, user }: { data: Device[], user: User | null }) {
   return (
     <tbody className="[&>tr]:border-b [&>tr:last-child]:border-0 [&>tr]:border-gray-200">
       {data.map((device) => (
@@ -26,12 +27,13 @@ export default function DevicesTableData({ data }: { data: Device[] }) {
             <MdOutlineDevices size={20} />
           </td>
           <td>{device.otherType ? device.otherType : device.type}</td>
+          <td>{device.deviceCode}</td>
           <td>{device.brand}</td>
           <td>{device.model}</td>
           <td>{device.color}</td>
           <td>{device.serialNumber}</td>
           <td>{device.customer?.name}</td>
-          <td><EditDevice device={device} /></td>
+          {user?.role === 'ADMIN' || user?.role === 'RECEPTIONIST' && <td><EditDevice device={device} /></td>}
         </tr>
       ))}
     </tbody>

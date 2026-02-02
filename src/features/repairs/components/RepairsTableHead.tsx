@@ -1,4 +1,6 @@
-export default function RepairsTableHead() {
+import type { User } from "@/features/auth/types/auth.types";
+
+export default function RepairsTableHead({ user }: { user: User | null }) {
   return (
     <thead className="bg-gray-300/60 text-slate-800">
       <tr
@@ -17,7 +19,7 @@ export default function RepairsTableHead() {
         <th>Name</th>
         <th>Price</th>
         <th>Last Update</th>
-        <th></th>
+        {user?.role === 'ADMIN' || user?.role === 'STORE_MANAGER' && <th></th>}
       </tr>
     </thead>
   );

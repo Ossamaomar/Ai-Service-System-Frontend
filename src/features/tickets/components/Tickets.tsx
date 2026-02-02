@@ -23,7 +23,7 @@ export default function Tickets() {
           {user &&
             (user?.role === "ADMIN" || user?.role === "RECEPTIONIST") && (
               <CreateTicket />
-            )}
+          )}
         </div>
 
         {isFetching ? <Loader /> : <TicketsTable data={tickets?.data.data} />}

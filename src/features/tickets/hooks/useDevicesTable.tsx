@@ -10,6 +10,7 @@ export default function useDevicesTable() {
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") ?? "1";
   const { search } = useDevices();
+  const  {user} = useAuth();
   //   const sort =  searchParams.get("sort") ?? "most_tickets";
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["devices"],
@@ -44,5 +45,5 @@ export default function useDevicesTable() {
     handleError();
   }, [error, isError, refresh]);
 
-  return { data, isLoading, isError };
+  return { data, isLoading, isError, user };
 }

@@ -13,14 +13,14 @@ export async function getAllTicketService(
   sort: string = "desc",
   branch: string = ""
 ) {
-  console.log(`${searchType}=${searchValue ? searchValue : ""}`);
-  const res = await api.get(
-    `/tickets?${searchType}=${
-      searchValue ? searchValue : ""
-    }&page=${page}&sort=${sort === "desc" ? "-createdAt" : "createdAt"}${
+  console.log(
+    `/tickets?${searchType}=${searchValue ? searchValue : ""}
+    &page=${page}&sort=${sort === "desc" ? "-createdAt" : "createdAt"}${
       !status ? "" : `&status=${status}`
     }&branch=${branch}`
   );
+  const res = await api.get(`/tickets?${searchType}=${searchValue ? searchValue : ""}&page=${page}&sort=${sort === "desc" ? "-createdAt" : "createdAt"}${!status ? "" : `&status=${status}`}&branch=${branch}`);
+  console.log(res);
   return res;
 }
 
